@@ -16,11 +16,18 @@ const Helper = require("./lib/helper"),
     _ = require('lodash');
 
 
+// TODO: ADD SUPPORT FOR
+// 1. Joins: https://questdb.io/docs/reference/sql/join/
+// 2. Having https://questdb.io/docs/concept/sql-extensions/#implicit-having/. 
+// 3. Other Query Types: Delete, Insert, Update etc.
+
+
 class Oql extends Helper {
     constructor(opts) {
-
         super(opts);
         // Init values
+
+        this.timestamp = opts.timestamp || 'timestamp';
 
     }
 
@@ -61,17 +68,15 @@ class Oql extends Helper {
         // 5. You cannot use order by with sample by
         if (oql.alignTo && oql.orderBy) throw new Error('You cannot have "alignTo" together with "orderBy"')
 
-        // return
-
-
 
         // pick values
         builder.table = oql.from;
 
         builder.limit = oql.limit;
 
-        builder.fields = await this.__format_fields(oql.fields);
+        builder.fields = await this.__parse_all_fields(oql.fields);
         builder.match = await this.__format_match(oql.match);
+
         // default bool is always AND
         builder.bool = oql.bool || "AND";
 
@@ -95,8 +100,7 @@ class Oql extends Helper {
 
         // console.log(oql.tsIn.in);
         if (oql.tsIn) {
-            oql.tsIn.in = await this.__escape_string(oql.tsIn.in);
-            builder.tsIn = oql.tsIn;
+            builder.tsIn = await this.__escape_string(oql.tsIn);
         }
 
 
@@ -119,7 +123,7 @@ class Oql extends Helper {
 
         // add timestamp IN condition to where/match
         if (this.builder.tsIn)
-            this.builder.match.unshift(` ${this.builder.tsIn.ts} IN (${this.builder.tsIn.in.join(',')})`)
+            this.builder.match.unshift(` ${this.timestamp} IN (${this.builder.tsIn.join(',')})`)
 
         // console.log(this.builder);
         // Make SQL
@@ -131,6 +135,8 @@ class Oql extends Helper {
 
         // add fields
         SQL += this.builder.fields.length ? this.builder.fields.join(', ') : (this.builder.distinct ? '' : '*');
+
+        // SQL += ` , CAST(${this.timestamp} AS TIMESTAMP) as ts `
 
         // add from 
         SQL += `\n FROM ` + this.builder.table;
@@ -162,6 +168,9 @@ class Oql extends Helper {
 
         SQL += `;`
 
+        // Wrap SQL 
+
+        // SQL = `SELECT * FROM (${SQL});`
 
         return SQL;
     }
