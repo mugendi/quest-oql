@@ -1,35 +1,35 @@
 {
-  "dependencies": {
-    "fastest-validator": "^1.11.1",
-    "lodash": "^4.17.21",
-    "sqlstring": "^2.3.2"
-  },
-  "name": "quest-oql",
-  "version": "0.0.1",
-  "description": "A JSON to SQL query builder for QuestDb.",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "query",
-    "builder",
-    "json",
-    "sql",
-    "questdb"
-  ],
-  "author": "Anthony Mugendi <ngurumugz@gmail.com>",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mugendi/quest-oql.git"
-  },
-  "bugs": {
-    "url": "https://github.com/mugendi/quest-oql/issues"
-  },
-  "homepage": "https://github.com/mugendi/quest-oql#readme"
+    "dependencies": {
+        "fastest-validator": "^1.11.1",
+        "lodash": "^4.17.21",
+        "sqlstring": "^2.3.2"
+    },
+    "name": "quest-oql",
+    "version": "0.0.2",
+    "description": "A JSON to SQL query builder for QuestDb.",
+    "main": "index.js",
+    "directories": {
+        "lib": "lib"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "query",
+        "builder",
+        "json",
+        "sql",
+        "questdb"
+    ],
+    "author": "Anthony Mugendi <ngurumugz@gmail.com>",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mugendi/quest-oql.git"
+    },
+    "bugs": {
+        "url": "https://github.com/mugendi/quest-oql/issues"
+    },
+    "homepage": "https://github.com/mugendi/quest-oql#readme"
 }

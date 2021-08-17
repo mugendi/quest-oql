@@ -93,6 +93,13 @@ class Oql extends Helper {
         if (oql.latestBy)
             builder.latestBy = await this.__format_all_fields(oql.latestBy);
 
+        // console.log(oql.tsIn.in);
+        if (oql.tsIn) {
+            oql.tsIn.in = await this.__escape_string(oql.tsIn.in);
+            builder.tsIn = oql.tsIn;
+        }
+
+
         builder.sampleBy = oql.sampleBy ? oql.sampleBy.replace(/\s{2,}/g, ' ') : null;
         builder.alignTo = oql.alignTo ? oql.alignTo.replace(/\s{2,}/g, ' ') : null;
 
@@ -110,6 +117,9 @@ class Oql extends Helper {
     async select() {
         if (!this.hasBuilder) throw new Error(`You must first call build(oql) before calling select.`);
 
+        // add timestamp IN condition to where/match
+        if (this.builder.tsIn)
+            this.builder.match.unshift(` ${this.builder.tsIn.ts} IN (${this.builder.tsIn.in.join(',')})`)
 
         // console.log(this.builder);
         // Make SQL
