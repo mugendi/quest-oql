@@ -77,6 +77,7 @@ class Oql extends Helper {
 
         // pick values
         builder.table = oql.from;
+        this.table = builder.table;
 
         builder.limit = oql.limit;
 
