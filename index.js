@@ -36,9 +36,8 @@ class Oql extends Helper {
 
         let self = this;
 
-        this.__validate('oql', { oql })
+        this.__validate('oql', { oql });
         this.__validate('query_type', { queryType });
-
 
         // console.log(JSON.stringify(oql, 0, 4));
         // console.log(oql);
@@ -51,9 +50,10 @@ class Oql extends Helper {
 
         // A few builder rule enforcements
         // 1. All columns in where clause (match) must be selected (fields)
+        let selectFields = _.uniq(oql.fields.map(a => a.join('--')));
+
         if (oql.match) {
-            let conditionFields = _.uniq(oql.match.map(o => o.cond.map(o => o[0])).reduce((a, b) => a.concat(b), [])),
-                selectFields = _.uniq(oql.fields.map(a => a.join('--')));
+            let conditionFields = _.uniq(oql.match.map(o => o.cond.map(o => o[0])).reduce((a, b) => a.concat(b), []));
 
             oql.fields = _.concat(oql.fields, _.difference(conditionFields, selectFields).map(v => [v]));
         }
@@ -88,9 +88,6 @@ class Oql extends Helper {
         // default bool is always AND
         builder.bool = oql.bool || "AND";
 
-        if (oql.groupBy)
-            builder.groupBy = await this.__format_all_fields(oql.groupBy);
-
         if (oql.orderBy)
             builder.orderBy = await Promise.all(oql.orderBy.map(async(a) => {
                 a[0] = await self.formatColName(a[0]);
@@ -120,7 +117,7 @@ class Oql extends Helper {
         builder.sampleBy = oql.sampleBy ? oql.sampleBy.replace(/\s{2,}/g, ' ') : null;
         builder.alignTo = oql.alignTo ? oql.alignTo.replace(/\s{2,}/g, ' ') : null;
 
-        // console.log(builder);
+        // console.log(oql);
 
         // build actual string
         this.builder = builder;
@@ -189,7 +186,7 @@ class Oql extends Helper {
 
         // add group by
         if (this.builder.groupBy)
-            console.log(this.builder.groupBy);
+            SQL += `\n GROUP BY ` + this.builder.groupBy.join(', ');
 
         // add limit
         if (this.builder.limit)
@@ -197,6 +194,7 @@ class Oql extends Helper {
 
 
         SQL += `;`
+
 
         return SQL;
     }
