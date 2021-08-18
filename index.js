@@ -34,6 +34,8 @@ class Oql extends Helper {
 
     async build(oql, queryType = 'select') {
 
+        let self = this;
+
         this.__validate('oql', { oql })
         this.__validate('query_type', { queryType });
 
@@ -73,7 +75,6 @@ class Oql extends Helper {
         if (oql.sampleBy && !oql.alignTo)
             oql.alignTo = "CALENDAR TIME ZONE 'GMT' WITH OFFSET '00:00'";
 
-
         // pick values
         builder.table = oql.from;
 
@@ -87,12 +88,12 @@ class Oql extends Helper {
         // default bool is always AND
         builder.bool = oql.bool || "AND";
 
-        if (builder.groupBy)
+        if (oql.groupBy)
             builder.groupBy = await this.__format_all_fields(oql.groupBy);
 
         if (oql.orderBy)
             builder.orderBy = await Promise.all(oql.orderBy.map(async(a) => {
-                a[0] = await this.formatFields(a[0]);
+                a[0] = await self.formatColName(a[0]);
                 let ordering = a[1] || "ASC";
                 this.__validate("ordering", { ordering })
                 a[1] = ordering;
@@ -100,10 +101,15 @@ class Oql extends Helper {
             }));
 
         if (oql.distinct)
-            builder.distinct = await this.__format_all_fields(oql.distinct);
+            builder.distinct = await Promise.all(oql.distinct.map(v => {
+                return self.formatColName(v);
+            }));
 
         if (oql.latestBy)
-            builder.latestBy = await this.__format_all_fields(oql.latestBy);
+            builder.latestBy = await Promise.all(oql.latestBy.map(v => {
+                return self.formatColName(v);
+            }));
+
 
         // console.log(oql.tsIn.in);
         if (oql.tsIn) {
@@ -113,6 +119,8 @@ class Oql extends Helper {
 
         builder.sampleBy = oql.sampleBy ? oql.sampleBy.replace(/\s{2,}/g, ' ') : null;
         builder.alignTo = oql.alignTo ? oql.alignTo.replace(/\s{2,}/g, ' ') : null;
+
+        // console.log(builder);
 
         // build actual string
         this.builder = builder;
@@ -124,6 +132,9 @@ class Oql extends Helper {
 
 
     async select() {
+
+        let self = this;
+
         if (!this.hasBuilder) throw new Error(`You must first call build(oql) before calling select.`);
 
         // add timestamp IN condition to where/match
@@ -135,8 +146,18 @@ class Oql extends Helper {
         let SQL = `SELECT `
 
         // add distinct
-        if (this.builder.distinct)
-            SQL += `DISTINCT ` + this.builder.distinct[0] + `, `
+        if (this.builder.distinct) {
+            SQL += `DISTINCT ` + (await Promise.all(this.builder.distinct.map(async v => {
+
+                if (self.forceAlias) {
+                    v = `${v} as ${this.__escape_string(await this.__format_col_names(v,true))}`;
+                }
+
+                return v;
+            }))).join(', ');
+
+            SQL += `, `;
+        }
 
         // add fields
         SQL += this.builder.fields.length ? this.builder.fields.join(', ') : (this.builder.distinct ? '' : '*');
@@ -165,6 +186,10 @@ class Oql extends Helper {
         // add order by
         if (this.builder.orderBy)
             SQL += `\n ORDER BY ` + this.builder.orderBy.map(a => a.join(' ')).join(', ');
+
+        // add group by
+        if (this.builder.groupBy)
+            console.log(this.builder.groupBy);
 
         // add limit
         if (this.builder.limit)
