@@ -131,7 +131,7 @@ class Oql extends Helper {
         builder.sampleBy = oql.sampleBy ? oql.sampleBy.replace(/\s{2,}/g, ' ') : null;
         builder.alignTo = oql.alignTo ? oql.alignTo.replace(/\s{2,}/g, ' ') : null;
 
-        console.log(builder);
+        // console.log(builder);
 
         // build actual string
         this.builder = builder;
