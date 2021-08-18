@@ -160,8 +160,6 @@ class Oql extends Helper {
         // add fields
         SQL += this.builder.fields.length ? this.builder.fields.join(', ') : (this.builder.distinct ? '' : '*');
 
-        // SQL += ` , CAST(${this.timestamp} AS TIMESTAMP) as ts `
-
         // add from 
         SQL += `\n FROM ` + this.builder.table;
 
