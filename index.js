@@ -58,6 +58,19 @@ class Oql extends Helper {
             oql.fields = _.concat(oql.fields, _.difference(conditionFields, selectFields).map(v => [v]));
         }
 
+        // Only pick unique
+        oql.fields = _.uniq(oql.fields);
+
+        if (this.dedupCols) {
+            let a = oql.fields.map(a => {
+                return {
+                    [a.map(String)]: a
+                }
+            }).reduce((a, b) => Object.assign(a, b), {})
+
+            oql.fields = Object.values(a);
+        }
+
         // 2. You cannot use both latest by & sample by
         if (oql.sampleBy && oql.latestBy) throw new Error('You cannot use "sampleBy" together with "latestBy"')
 
