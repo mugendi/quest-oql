@@ -75,6 +75,8 @@ class Oql extends Helper {
         builder.limit = oql.limit;
 
         builder.fields = await this.__parse_all_fields(oql.fields);
+
+
         builder.match = await this.__format_match(oql.match);
 
         // default bool is always AND
@@ -106,8 +108,6 @@ class Oql extends Helper {
 
         builder.sampleBy = oql.sampleBy ? oql.sampleBy.replace(/\s{2,}/g, ' ') : null;
         builder.alignTo = oql.alignTo ? oql.alignTo.replace(/\s{2,}/g, ' ') : null;
-
-
 
         // build actual string
         this.builder = builder;
@@ -167,10 +167,6 @@ class Oql extends Helper {
 
 
         SQL += `;`
-
-        // Wrap SQL 
-
-        // SQL = `SELECT * FROM (${SQL});`
 
         return SQL;
     }
