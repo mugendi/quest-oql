@@ -71,7 +71,7 @@ class Oql extends Helper {
         // 6. Not a rule but important to have data sampled as expected
         // If user has sample without align, attempt to add ALIGN BY CALENDAR as default
         if (oql.sampleBy && !oql.alignTo)
-            oql.alignTo = "CALENDAR";
+            oql.alignTo = "CALENDAR TIME ZONE 'GMT' WITH OFFSET '00:00'";
 
 
         // pick values
